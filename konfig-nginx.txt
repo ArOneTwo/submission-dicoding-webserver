@@ -1,5 +1,7 @@
 # /etc/nginx/sites-available/default
 server {
+        limit_req_zone $binary_remote_addr zone=limit:10m rate=6r/m;
+
         listen 3000 default_server;
         listen [::]:3000 default_server;
 
@@ -11,31 +13,7 @@ server {
 
         location / {
                 limit_req zone=limit burst=5;
-                proxy_pass http://0.0.0.0:8000;
+                proxy_pass http://127.0.0.1:8000;
                 try_files $uri $uri/ =404;
         }
 }
-
-# /etc/nginx/nginx.conf
-http {
-
-        limit_req_zone $binary_remote_addr zone=limit:10m rate=6r/m;
-
-        sendfile on;
-        tcp_nopush on;
-        types_hash_max_size 2048;
-
-        include /etc/nginx/mime.types;
-        default_type application/octet-stream;
-
-        ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
-        ssl_prefer_server_ciphers on;
-
-        access_log /var/log/nginx/access.log;
-
-        gzip on;
-
-        include /etc/nginx/conf.d/*.conf;
-        include /etc/nginx/sites-enabled/*;
-} 
-
